@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { loadMdDir, md } from '../lib/data.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
+const events = loadMdDir('timeline');
+---
+<Layout title="大事记" current="timeline">
+  {events.length === 0 ? (
+    <div class="card"><p class="story">还没有大事记。在 content/timeline/ 里添加 markdown 文件即可。</p></div>
+  ) : (
+    <div class="card">
+      <h2>我们一起走过的时间</h2>
+      <div class="tl">
+        {events.map(ev => (
+          <div class="ev">
+            <div class="d">{ev.date}</div>
+            <div class="t">{ev.title}</div>
+            <div class="b" set:html={md(ev.body, base)} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</Layout>

@@ -1,0 +1,14 @@
+[
+  { "id": "tonghe",    "name": "童贺",   "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "jinlixin",  "name": "金栗鑫", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "zhuyi",     "name": "朱義",   "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "liuyanze",  "name": "刘严泽", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "lichengyu", "name": "李承雨", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "yujintian", "name": "于金田", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "songyixuan","name": "宋奕萱", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "shixiangjun","name": "石湘君","avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "wangsihan", "name": "王思涵", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "gaozhuoran","name": "高卓然", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "gaodantong","name": "高丹彤", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] },
+  { "id": "fansiqi",   "name": "范思琪", "avatar": "", "motto": "", "school": "", "city": "", "intro": "", "tags": [] }
+]

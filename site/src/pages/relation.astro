@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { stats as D, fmt, esc, pairStory } from '../lib/data.js';
+// 只把图谱需要的数据传给浏览器
+const gdata = {
+  persons: D.persons.map(p => ({ name: p.name, msgs: p.msgs })),
+  pairs: D.pairs,
+};
+---
+<Layout title="关系图谱" current="relation">
+  <div class="card">
+    <h2>谁和谁最聊得来</h2>
+    <p class="story" style="margin-bottom:14px">圆点越大，话说得越多；连线越粗，越常在一分钟内接住对方的话。点按名字，看看 TA 的线都连着谁。</p>
+    <canvas id="graph" style="width:100%;height:460px;display:block"></canvas>
+  </div>
+  <div class="card">
+    <h2>默契排行榜</h2>
+    <div class="prose">
+      {D.pairs.slice(0, 5).map((x, i2) => <p><b style="color:var(--terra)">NO.{i2 + 1}</b>　<b>{esc(x.a)}</b> × <b>{esc(x.b)}</b><br><span style="font-size:13.5px;color:var(--dim)">{pairStory(x)}</span></p>)}
+    </div>
+  </div>
+  <script type="application/json" id="gdata" set:html={esc(JSON.stringify(gdata))} />
+  <script is:inline>
+  (function(){
+    const D=JSON.parse(document.getElementById('gdata').textContent);
+    const COLORS=['#c96f4a','#8a9a5b','#d9a441','#7a8fa6','#b56576','#6d8ea0','#a1887f','#c08457','#94868c','#5f8d7a','#b08968','#9b7eb8'];
+    const cvs=document.getElementById('graph');
+    let nodes=[],hl=null;
+    function draw(){
+      const dpr=window.devicePixelRatio||1,W=cvs.clientWidth,H=cvs.clientHeight;
+      cvs.width=W*dpr;cvs.height=H*dpr;
+      const ctx=cvs.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+      const cx=W/2,cy=H/2,R=Math.min(W,H)/2-54;
+      const ps=D.persons,mxM=Math.max(...ps.map(p=>p.msgs));
+      nodes=ps.map((p,i)=>{const a=-Math.PI/2+i/ps.length*Math.PI*2;
+        return{p,x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R,r:12+16*Math.sqrt(p.msgs/mxM),c:COLORS[i%COLORS.length]};});
+      const idx={};nodes.forEach(n=>idx[n.p.name]=n);
+      const mxC=D.pairs.length?D.pairs[0].count:1;
+      for(const e of D.pairs){
+        const A=idx[e.a],B=idx[e.b];if(!A||!B)continue;
+        const hot=hl&&(e.a===hl||e.b===hl);
+        ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);
+        ctx.lineWidth=(hl?(hot?1.6:0.4):0.5)+6*Math.sqrt(e.count/mxC)*(hl&&!hot?0.25:1);
+        ctx.strokeStyle=hot?'rgba(201,111,74,.8)':hl?'rgba(140,125,100,.08)':'rgba(180,150,100,'+(0.12+0.45*Math.sqrt(e.count/mxC))+')';
+        ctx.stroke();
+      }
+      for(const n of nodes){
+        const dim=hl&&n.p.name!==hl;
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,7);
+        ctx.fillStyle=dim?'rgba(180,168,143,.4)':n.c;ctx.fill();
+        if(n.p.name===hl){ctx.lineWidth=3;ctx.strokeStyle='#c96f4a';ctx.stroke();}
+        ctx.fillStyle='#fffdf8';ctx.font='700 '+(n.r*0.8)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(n.p.name[0],n.x,n.y+1);
+        ctx.fillStyle=dim?'rgba(140,125,100,.5)':'#3d362e';ctx.font='12.5px sans-serif';
+        ctx.fillText(n.p.name,n.x,n.y+(n.y>cy?n.r+14:-n.r-10));
+      }
+    }
+    cvs.onclick=e=>{
+      const r=cvs.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+      const hit=nodes.find(n=>(n.x-x)**2+(n.y-y)**2<=(n.r+8)**2);
+      hl=hit?(hl===hit.p.name?null:hit.p.name):null;
+      draw();
+    };
+    draw();window.addEventListener('resize',draw);
+  })();
+  </script>
+</Layout>

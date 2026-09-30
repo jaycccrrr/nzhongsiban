@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { listPhotos, esc } from '../lib/data.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
+const photos = listPhotos();
+// 按子文件夹分组
+const groups = {};
+for (const r of photos) {
+  const g = r.includes('/') ? r.split('/')[0] : '未分类';
+  (groups[g] = groups[g] || []).push(r);
+}
+---
+<Layout title="照片墙" current="gallery">
+  {photos.length === 0 ? (
+    <div class="card"><p class="story">还没有照片。把照片放进 content/photos/ 文件夹即可自动出现在这里。</p></div>
+  ) : (
+    Object.entries(groups).map(([g, list]) => (
+      <>
+        <div class="gsec">{esc(g)}</div>
+        <div class="ggrid">
+          {list.map(r => <div class="ph"><img src={base + 'photos/' + r} alt={esc(r)} loading="lazy"></div>)}
+        </div>
+      </>
+    ))
+  )}
+  <div class="hint">点按照片可放大</div>
+</Layout>

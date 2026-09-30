@@ -1,0 +1,78 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { stats as D, members, fmt, esc, pcolor, deriveTags, personStory, pairStory } from '../../lib/data.js';
+
+export function getStaticPaths() {
+  return members.map((m, i) => ({ params: { id: m.id || String(i) }, props: { m } }));
+}
+const { m } = Astro.props;
+const TAGS = deriveTags(D);
+const i = D.persons.findIndex(p => p.name === m.name);
+const p = D.persons[i];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const myPairs = p ? D.pairs.filter(x => x.a === p.name || x.b === p.name).slice(0, 3) : [];
+const mxH = p ? Math.max(...p.hours, 1) : 1;
+---
+<Layout title={m.name} current="members">
+  {!p ? <div class="card"><p class="story">还没有 TA 的数据。</p></div> : (
+    <>
+      <div class="card" style="text-align:center;padding:34px 24px">
+        <div class="avatar" style={`background:${pcolor(i)};width:84px;height:84px;font-size:34px;margin:0 auto`}>
+          {m.avatar ? <img src={`${base}/${m.avatar}`} alt={m.name}> : m.name[0]}
+        </div>
+        <div style="font-family:var(--serif);font-size:26px;font-weight:700;letter-spacing:3px;margin-top:14px">{m.name}</div>
+        {(m.school || m.city) && <div style="color:var(--dim);font-size:13px;margin-top:4px">{[m.school, m.city].filter(Boolean).join(' · ')}</div>}
+        {m.motto && <div style="font-family:var(--serif);color:var(--dim);font-size:15px;margin-top:8px">「{m.motto}」</div>}
+        <div class="tags" style="justify-content:center;margin-top:14px">
+          {(m.tags || []).map(t => <span class="tag">{t}</span>)}
+          {(TAGS[p.name] || []).map(t => <span class="tag">{t}</span>)}
+        </div>
+      </div>
+
+      {m.intro && <div class="card"><div class="prose"><p>{m.intro}</p></div></div>}
+
+      <div class="card">
+        <h2>这一年的 TA</h2>
+        <p class="story">{personStory(p, D)}</p>
+      </div>
+
+      <div class="grid3">
+        <div class="card bignum"><div class="v">{fmt(p.msgs)}</div><div class="k">条发言</div></div>
+        <div class="card bignum"><div class="v">{p.activeDays}</div><div class="k">天出现过</div></div>
+        <div class="card bignum"><div class="v">{p.maxCombo}</div><div class="k">条 · 一口气说最多</div></div>
+      </div>
+
+      <div class="card">
+        <h2>TA 的一天</h2>
+        <div class="mchart" style="height:80px;gap:2px">
+          {p.hours.map((v, h) => <div class="mb" style={`height:${Math.max(v / mxH * 100, 2)}%`} title={`${h}点 · ${v} 条`}></div>)}
+        </div>
+        <div class="mchart-lb" style="gap:2px">{Array.from({ length: 24 }, (_, h) => <span>{h % 6 === 0 ? h : ''}</span>)}</div>
+        <div class="hint">TA 最常在 {p.peakHour} 点出现</div>
+      </div>
+
+      {myPairs.length > 0 && (
+        <div class="card">
+          <h2>和 TA 最聊得来的人</h2>
+          <div class="prose">
+            {myPairs.map(x => {
+              const other = x.a === p.name ? x.b : x.a;
+              return <p>💛 <b>{esc(other)}</b> —— {pairStory(x)}</p>;
+            })}
+          </div>
+        </div>
+      )}
+
+      <div class="card">
+        <h2>如果只听三个字就认出 TA</h2>
+        <div class="chips">
+          {p.catchphrases.map(w => <span class="chip"><b>「{esc(w)}」</b></span>)}
+        </div>
+        {p.topEmojis.length > 0 && <div class="chips" style="margin-top:10px">
+          {p.topEmojis.map(e => <span class="chip">[{esc(e)}]</span>)}
+        </div>}
+      </div>
+    </>
+  )}
+  <div class="hint"><a href={`${base}/members/`}>← 回到人物录</a></div>
+</Layout>

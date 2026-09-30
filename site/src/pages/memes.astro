@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { loadMdDir, md, esc } from '../lib/data.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
+const memes = loadMdDir('memes');
+---
+<Layout title="梗百科" current="memes">
+  {memes.length === 0 ? (
+    <div class="card"><p class="story">还没有收录梗。在 content/memes/ 里添加 markdown 文件即可。</p></div>
+  ) : (
+    memes.map(mm => (
+      <div class="card meme">
+        <h3>{esc(mm.title || mm.slug)}</h3>
+        <div class="md">{esc(mm.date || '')}</div>
+        <div class="bd" set:html={md(mm.body, base)} />
+      </div>
+    ))
+  )}
+</Layout>

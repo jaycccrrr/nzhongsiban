@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { stats as D, fmt, esc, overviewStory } from '../lib/data.js';
+const M = D.meta;
+const story = overviewStory(D);
+const mxMon = Math.max(...D.months.map(x => x[1]));
+const [topDay, topDayCnt] = D.topDays[0];
+const topPerson = D.persons[0];
+const topPair = D.pairs[0];
+const topEmoji = D.emojis[0];
+---
+<Layout current="">
+  <div class="card">
+    <p class="story" set:html={story.map(s => esc(s)).join('<br>')} />
+  </div>
+
+  <div class="grid3">
+    <div class="card bignum"><div class="v">{fmt(M.total)}</div><div class="k">条消息</div></div>
+    <div class="card bignum"><div class="v">{(M.charTotal / 10000).toFixed(0)}万</div><div class="k">字 · 相当于 {(M.charTotal/731017).toFixed(1)} 本《红楼梦》</div></div>
+    <div class="card bignum"><div class="v">{M.days}</div><div class="k">天陪伴</div></div>
+  </div>
+
+  <div class="card">
+    <h2>这一年的热度</h2>
+    <div class="mchart">
+      {D.months.map(([m, c]) => <div class="mb" style={`height:${Math.max(c / mxMon * 100, 3)}%`} title={`${m} · ${fmt(c)} 条`}></div>)}
+    </div>
+    <div class="mchart-lb">{D.months.map(([m]) => <span>{m.slice(2).replace('-', '/')}</span>)}</div>
+    <div class="hint">最热闹的月份：{D.months.reduce((a, b) => b[1] > a[1] ? b : a)[0]}，{fmt(Math.max(...D.months.map(x => x[1])))} 条消息</div>
+  </div>
+
+  <div class="card">
+    <h2>几个之最</h2>
+    <div class="prose">
+      <p>🗓 <b>{topDay}</b> 是最嗨的一天，{fmt(topDayCnt)} 条消息。</p>
+      <p>🥇 <b>{esc(topPerson.name)}</b> 说得最多，{fmt(topPerson.msgs)} 条，平均一天 {(topPerson.msgs / M.days).toFixed(0)} 句。</p>
+      <p>⚡ <b>{esc(topPair.a)}</b> 和 <b>{esc(topPair.b)}</b> 最默契，一分钟内互相接话 {fmt(topPair.count)} 次。</p>
+      <p>😂 年度表情是 <b>[{esc(topEmoji[0])}]</b>，出现了 {fmt(topEmoji[1])} 次。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>我们嘴边的话</h2>
+    <div class="chips">
+      {D.words.slice(0, 14).map(([w, c]) => <span class="chip"><b>{esc(w)}</b> ×{c}</span>)}
+    </div>
+  </div>
+</Layout>
