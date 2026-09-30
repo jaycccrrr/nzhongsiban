@@ -19,7 +19,7 @@ const gdata = {
       {D.pairs.slice(0, 5).map((x, i2) => <p><b style="color:var(--terra)">NO.{i2 + 1}</b>　<b>{esc(x.a)}</b> × <b>{esc(x.b)}</b><br><span style="font-size:13.5px;color:var(--dim)">{pairStory(x)}</span></p>)}
     </div>
   </div>
-  <script type="application/json" id="gdata" set:html={esc(JSON.stringify(gdata))} />
+  <script type="application/json" id="gdata" set:html={JSON.stringify(gdata).replace(/</g, '\\u003c')} />
   <script is:inline>
   (function(){
     const D=JSON.parse(document.getElementById('gdata').textContent);

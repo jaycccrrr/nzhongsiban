@@ -1,5 +1,6 @@
 ---
 const { title = '', current = '' } = Astro.props;
+const fullTitle = title ? title + ' · 廿中四班' : '廿中四班';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const nav = [
   ['', '总览'],
@@ -16,8 +17,8 @@ const nav = [
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>{title ? title + ' · ' : ''}廿中四班</title>
-<style>
+<title>{fullTitle}</title>
+<style is:global>
 :root{
   --bg:#faf6ee; --bg2:#f4ecdd; --card:#fffdf8; --line:#e8ddc9;
   --ink:#3d362e; --dim:#8a7f6d; --dim2:#b3a88f;
